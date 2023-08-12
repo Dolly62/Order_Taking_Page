@@ -1,23 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import Input from "./components/FormInput/Input";
+import OrderList from "./components/FormList/OrderList";
 
 function App() {
+  const initialList = JSON.parse(localStorage.getItem("orderList")) || []
+  const [orderList, setOrderList] = useState(initialList);
+
+  useEffect(() => {
+    localStorage.setItem("orderList", JSON.stringify(orderList))
+  }, [orderList])
+
+  const addOrderHandler = (orderID, orderprice, ordername, table) => {
+    setOrderList((prevLists) => {
+      const newList = {
+        id: Math.random().toString(),
+        orderID: orderID,
+        price: orderprice,
+        name: ordername,
+        selectedtable: table,
+      };
+
+      const updatedLists = [...prevLists, newList];
+      return updatedLists;
+    });
+  };
+
+  const deleteOrderHandler = (orderId) => {
+    setOrderList((prevLists) => {
+      const updatedLists = prevLists.filter((order) => order.id !== orderId)
+      return updatedLists;
+    });
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Input onAddOrder={addOrderHandler} />
+      <OrderList orders={orderList} onDeleteOrder={deleteOrderHandler} />
     </div>
   );
 }
